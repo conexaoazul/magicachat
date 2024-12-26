@@ -65,6 +65,14 @@ const primaryMenuItems = accountId => [
     toState: frontendURL(`accounts/${accountId}/settings`),
     toStateName: 'settings_home',
   },
+  {
+    icon: 'whatsapp',
+    key: 'WhatsApp Web',
+    label: 'SETTINGS',
+    toState: frontendURL(`accounts/${accountId}/settings`),
+    toStateName: 'settings_home',
+  },
+
 ];
 
 export default primaryMenuItems;

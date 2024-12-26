@@ -56,6 +56,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_17_041352) do
     t.jsonb "limits", default: {}
     t.jsonb "custom_attributes", default: {}
     t.integer "status", default: 0
+    t.integer "limite_disparo", default: 100, null: false
+    t.string "url_iframe", default: "https://api1.conexaoazul.com/manager"
+    t.string "url_crm", default: "https://app.conexaoazul.com/web"
+    t.string "url_n8n", default: "https://conector.conexaoazul.com"
     t.index ["status"], name: "index_accounts_on_status"
   end
 
@@ -220,11 +224,20 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_17_041352) do
     t.jsonb "audience", default: []
     t.datetime "scheduled_at", precision: nil
     t.boolean "trigger_only_during_business_hours", default: false
+    t.integer "status_envia", default: 0, null: false
+    t.integer "enviou", default: 0, null: false
+    t.integer "falhou", default: 0, null: false
     t.index ["account_id"], name: "index_campaigns_on_account_id"
     t.index ["campaign_status"], name: "index_campaigns_on_campaign_status"
     t.index ["campaign_type"], name: "index_campaigns_on_campaign_type"
     t.index ["inbox_id"], name: "index_campaigns_on_inbox_id"
     t.index ["scheduled_at"], name: "index_campaigns_on_scheduled_at"
+  end
+
+  create_table "campaigns_failled", force: :cascade do |t|
+    t.text "nomecontato", null: false
+    t.string "telefone", null: false
+    t.integer "id_campanha", null: false
   end
 
   create_table "canned_responses", id: :serial, force: :cascade do |t|
@@ -624,6 +637,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_17_041352) do
     t.bigint "portal_id"
     t.integer "sender_name_type", default: 0, null: false
     t.string "business_name"
+    t.boolean "allow_agent_to_delete_message", default: true, null: false
+    t.string "external_token"
+    t.boolean "csat_response_visible", default: false, null: false
     t.index ["account_id"], name: "index_inboxes_on_account_id"
     t.index ["channel_id", "channel_type"], name: "index_inboxes_on_channel_id_and_channel_type"
     t.index ["portal_id"], name: "index_inboxes_on_portal_id"
@@ -649,7 +665,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_17_041352) do
     t.string "access_token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "settings", default: {}
+    t.jsonb "settings", default: {"api_key"=>"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"}, comment: "{\n  \"api_key\": \"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\"\n}"
   end
 
   create_table "labels", force: :cascade do |t|
@@ -1007,6 +1023,137 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_17_041352) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "inboxes", "portals"
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER after_delete_labels AFTER DELETE ON \"labels\" FOR EACH ROW EXECUTE FUNCTION delete_labels_from_tags_and_taggings()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER after_insert_labels AFTER INSERT ON \"labels\" FOR EACH ROW EXECUTE FUNCTION replicate_labels_to_tags()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER after_update_labels AFTER UPDATE ON \"labels\" FOR EACH ROW EXECUTE FUNCTION update_labels_to_tags()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.delete_labels_from_tags_and_taggings()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    -- Exclui da tabela tags
+    DELETE FROM tags WHERE id = OLD.id;
+    -- Exclui da tabela taggings
+    DELETE FROM taggings WHERE tag_id = OLD.id;
+    RETURN OLD;
+END;
+$function$
+  SQL
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER n8n_trigger_0d3cc1b9_cfd1_401f_8e1d_35080e127e31 AFTER INSERT ON \"users\" FOR EACH ROW EXECUTE FUNCTION n8n_trigger_function_0d3cc1b9_cfd1_401f_8e1d_35080e127e31()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER n8n_trigger_2e034c32_c707_43a4_86f7_95b9575ff71e AFTER UPDATE ON \"users\" FOR EACH ROW EXECUTE FUNCTION n8n_trigger_function_2e034c32_c707_43a4_86f7_95b9575ff71e()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER n8n_trigger_5e861ab5_f09a_4bd7_877c_3a82560eceda AFTER INSERT ON \"users\" FOR EACH ROW EXECUTE FUNCTION n8n_trigger_function_5e861ab5_f09a_4bd7_877c_3a82560eceda()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER n8n_trigger_976080d4_de34_46dc_9719_2014593a3982 AFTER UPDATE ON \"articles\" FOR EACH ROW EXECUTE FUNCTION n8n_trigger_function_976080d4_de34_46dc_9719_2014593a3982()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER n8n_trigger_9f3558d3_7883_4b4e_bcdd_81979c69b15f AFTER INSERT ON \"users\" FOR EACH ROW EXECUTE FUNCTION n8n_trigger_function_9f3558d3_7883_4b4e_bcdd_81979c69b15f()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER n8n_trigger_ee7c9225_0c16_42e6_a659_69d2c68afcad AFTER INSERT ON \"users\" FOR EACH ROW EXECUTE FUNCTION n8n_trigger_function_ee7c9225_0c16_42e6_a659_69d2c68afcad()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute("CREATE TRIGGER n8n_trigger_f7fee39a_7ff8_48bc_a333_140d53e8c380 AFTER INSERT ON \"users\" FOR EACH ROW EXECUTE FUNCTION n8n_trigger_function_f7fee39a_7ff8_48bc_a333_140d53e8c380()")
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.n8n_trigger_function_0d3cc1b9_cfd1_401f_8e1d_35080e127e31()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$ begin perform pg_notify('n8n_channel_0d3cc1b9_cfd1_401f_8e1d_35080e127e31', row_to_json(new)::text); return null; end; $function$
+  SQL
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.n8n_trigger_function_2e034c32_c707_43a4_86f7_95b9575ff71e()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$ begin perform pg_notify('n8n_channel_2e034c32_c707_43a4_86f7_95b9575ff71e', row_to_json(new)::text); return null; end; $function$
+  SQL
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.n8n_trigger_function_5e861ab5_f09a_4bd7_877c_3a82560eceda()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$ begin perform pg_notify('n8n_channel_5e861ab5_f09a_4bd7_877c_3a82560eceda', row_to_json(new)::text); return null; end; $function$
+  SQL
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.n8n_trigger_function_976080d4_de34_46dc_9719_2014593a3982()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$ begin perform pg_notify('n8n_channel_976080d4_de34_46dc_9719_2014593a3982', row_to_json(new)::text); return null; end; $function$
+  SQL
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.n8n_trigger_function_9f3558d3_7883_4b4e_bcdd_81979c69b15f()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$ begin perform pg_notify('n8n_channel_9f3558d3_7883_4b4e_bcdd_81979c69b15f', row_to_json(new)::text); return null; end; $function$
+  SQL
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.n8n_trigger_function_ee7c9225_0c16_42e6_a659_69d2c68afcad()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$ begin perform pg_notify('n8n_channel_ee7c9225_0c16_42e6_a659_69d2c68afcad', row_to_json(new)::text); return null; end; $function$
+  SQL
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.n8n_trigger_function_f7fee39a_7ff8_48bc_a333_140d53e8c380()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$ begin perform pg_notify('n8n_channel_f7fee39a_7ff8_48bc_a333_140d53e8c380', row_to_json(new)::text); return null; end; $function$
+  SQL
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.replicate_labels_to_tags()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    INSERT INTO tags (id, name)
+    VALUES (NEW.id, NEW.title);
+    RETURN NEW;
+END;
+$function$
+  SQL
+
+  # no candidate create_trigger statement could be found, creating an adapter-specific one
+  execute(<<-SQL)
+CREATE OR REPLACE FUNCTION public.update_labels_to_tags()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    UPDATE tags
+    SET name = NEW.title
+    WHERE id = NEW.id;
+    RETURN NEW;
+END;
+$function$
+  SQL
+
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").
       after(:insert).

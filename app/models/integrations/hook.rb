@@ -2,17 +2,17 @@
 #
 # Table name: integrations_hooks
 #
-#  id           :bigint           not null, primary key
-#  access_token :string
-#  hook_type    :integer          default("account")
-#  settings     :jsonb
-#  status       :integer          default("enabled")
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  account_id   :integer
-#  app_id       :string
-#  inbox_id     :integer
-#  reference_id :string
+#  id                                                                               :bigint           not null, primary key
+#  access_token                                                                     :string
+#  hook_type                                                                        :integer          default("account")
+#  settings({\n  "api_key": "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"\n}:jsonb
+#  status                                                                           :integer          default("enabled")
+#  created_at                                                                       :datetime         not null
+#  updated_at                                                                       :datetime         not null
+#  account_id                                                                       :integer
+#  app_id                                                                           :string
+#  inbox_id                                                                         :integer
+#  reference_id                                                                     :string
 #
 class Integrations::Hook < ApplicationRecord
   include Reauthorizable

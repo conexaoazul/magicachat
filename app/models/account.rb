@@ -7,11 +7,15 @@
 #  custom_attributes     :jsonb
 #  domain                :string(100)
 #  feature_flags         :bigint           default(0), not null
+#  limite_disparo        :integer          default(100), not null
 #  limits                :jsonb
 #  locale                :integer          default("en")
 #  name                  :string           not null
 #  status                :integer          default("active")
 #  support_email         :string(100)
+#  url_crm               :string           default("https://app.conexaoazul.com/web")
+#  url_iframe            :string           default("https://api1.conexaoazul.com/manager")
+#  url_n8n               :string           default("https://conector.conexaoazul.com")
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
 #
