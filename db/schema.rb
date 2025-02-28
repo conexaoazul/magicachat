@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_02_07_040150) do
+ActiveRecord::Schema[7.0].define(version: 2025_02_28_185548) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -57,10 +57,14 @@ ActiveRecord::Schema[7.0].define(version: 2025_02_07_040150) do
     t.jsonb "limits", default: {}
     t.jsonb "custom_attributes", default: {}
     t.integer "status", default: 0
+<<<<<<< HEAD
     t.integer "limite_disparo", default: 100, null: false
     t.string "url_iframe", default: "https://api1.conexaoazul.com/manager"
     t.string "url_crm", default: "https://app.conexaoazul.com/web"
     t.string "url_n8n", default: "https://conector.conexaoazul.com"
+=======
+    t.jsonb "internal_attributes", default: {}, null: false
+>>>>>>> ecfa6bf6a (feat: Add support for account abuse detection (#11001))
     t.index ["status"], name: "index_accounts_on_status"
   end
 
